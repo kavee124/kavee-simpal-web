@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kavee Salon | Premium Beauty Experience</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/ScrollMagic.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+        }
+        .text-gradient {
+            background-image: linear-gradient(45deg, #6366F1, #A78BFA);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .hover-card {
+            transition: all 0.3s ease;
+        }
+        .hover-card:hover {
+            transform: translateY(-5px);
+        }
+        .service-card {
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .testimonial-card {
+            transition: all 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: scale(1.02);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6366F1;
+            border-radius: 10px;
+        }
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+        .animated-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .section-divider {
+            height: 100px;
+            background: linear-gradient(to right bottom, #6366F1 49.9%, white 50%);
+        }
+        .section-divider-reverse {
+            height: 100px;
+            background: linear-gradient(to left bottom, white 49.9%, #6366F1 50%);
+        }
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        .appointment-form input,
+        .appointment-form textarea,
+        .appointment-form select {
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            border: 1px solid #E5E7EB;
+        }
+        .appointment-form input:focus,
+        .appointment-form textarea:focus,
+        .appointment-form select:focus {
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Three.js Background Canvas -->
+    <div id="bg-canvas" class="canvas-container"></div>
+
+    <!-- Header with animated gradient using GSAP -->
+    <header class="min-h-screen relative flex items-center justify-center overflow-hidden">
+        <div class="animated-bg" id="animated-header-bg"></div>
+        <div class="container mx-auto px-4 z-10">
+            <div class="text-center">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 text-gradient">Kavee Salon</h1>
+                <p class="text-xl md:text-2xl text-indigo-600 mb-8">ඔබේ රූපලාවන්‍ය සිහින සැබෑ කරන තැන</p>
+                <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-12">Discover the ultimate beauty experience with our expert team dedicated to bringing out your natural beauty and enhancing your confidence.</p>
+                <div class="flex flex-col md:flex-row gap-4 justify-center">
+                    <a href="#services" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">Our Services</a>
+                    <a href="#booking" class="bg-white hover:bg-gray-100 text-indigo-600 font-medium py-3 px-8 rounded-full border border-indigo-600 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">Book Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-10 left-0 right-0 text-center">
+            <a href="#about" class="text-indigo-600 animate-bounce inline-block">
+                <i class="fas fa-chevron-down text-2xl"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Navigation Bar that becomes sticky -->
+    <nav id="navbar" class="bg-white py-4 shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-2xl font-bold">K</span>
+                    </div>
+                    <span class="text-xl font-semibold text-indigo-600">Kavee</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="nav-link text-gray-700 hover:text-indigo-600 transition-colors duration-300">මුල් පිටුව</a>
+                    <a href="#about" class="nav-link text-gray-700 hover:text-indigo-600 transition-colors duration-300">අප ගැන</a>
+                    <a href="#services" class="nav-link text-gray-700 hover:text-indigo-600 transition-colors duration-300">සේවාවන්</a>
+                    <a href="#gallery" class="nav-link text-gray-700 hover:text-indigo-600 transition-colors duration-300">ගැලරිය</a>
+                    <a href="#testimonials" class="nav-link text-gray-700 hover:text-indigo-600 transition-colors duration-300">පාරිභෝගික අදහස්</a>
+                    <a href="#contact" class="nav-link text-gray-700 hover:text-indigo-600 transition-colors duration-300">අප අමතන්න</a>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-700 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+                <div class="hidden md:block">
+                    <a href="#booking" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-full transition-all duration-300 ease-in-out">Book Appointment</a>
+                </div>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 bg-white rounded-lg shadow-lg absolute left-0 right-0 z-50 transition-all duration-300 ease-in-out">
+                <div class="flex flex-col p-4 space-y-3">
+                    <a href="#home" class="text-gray-700 hover:text-indigo-600 py-2 transition-colors duration-300">මුල් පිටුව</a>
+                    <a href="#about" class="text-gray-700 hover:text-indigo-600 py-2 transition-colors duration-300">අප ගැන</a>
+                    <a href="#services" class="text-gray-700 hover:text-indigo-600 py-2 transition-colors duration-300">සේවාවන්</a>
+                    <a href="#gallery" class="text-gray-700 hover:text-indigo-600 py-2 transition-colors duration-300">ගැලරිය</a>
+                    <a href="#testimonials" class="text-gray-700 hover:text-indigo-600 py-2 transition-colors duration-300">පාරිභෝගික අදහස්</a>
+                    <a href="#contact" class="text-gray-700 hover:text-indigo-600 py-2 transition-colors duration-300">අප අමතන්න</a>
+                    <a href="#booking" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-full text-center transition-all duration-300 ease-in-out">Book Appointment</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- About Section with Parallax Effect -->
+        <section id="about" class="py-20 relative overflow-hidden">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-10 md:mb-0">
+                        <div class="relative">
+                            <div class="w-full h-96 bg-indigo-100 rounded-2xl flex items-center justify-center">
+                                <div class="w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-spa text-white text-3xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute -bottom-6 -right-6 w-48 h-48 bg-indigo-300 rounded-full opacity-50"></div>
+                            <div class="absolute -top-6 -left-6 w-32 h-32 bg-purple-300 rounded-full opacity-50"></div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 md:pl-12">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">අප ගැන</h2>
+                        <div class="w-20 h-1 bg-indigo-600 mb-6"></div>
+                        <p class="text-gray-700 leading-relaxed mb-6">Kavee Salon යනු රූපලාවන්‍ය සත්කාර සඳහා ඔබගේ විශ්වාසනීය සහකරු වීමට අපි වෙහෙසෙමු. වසර ගණනාවක පළපුරුද්දක් ඇති අපගේ කණ්ඩායම නවීනතම තාක්ෂණයන් සහ උසස් තත්ත්වයේ නිෂ්පාදන භාවිතා කරමින් ඔබට හොඳම සේවාව ලබා දීමට කැපවී සිටී.</p>
+                        <p class="text-gray-700 leading-relaxed mb-8">We blend traditional beauty knowledge with contemporary techniques to give you a unique and personalized experience every time you visit us. Our salon is more than just a place—it's a sanctuary for rejuvenation and self-care.</p>
+                        
+                        <h3 class="text-xl font-semibold mb-4">අපගේ වටිනාකම්</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex items-start">
+                                <div class="bg-indigo-100 rounded-full p-3 mr-4">
+                                    <i class="fas fa-heart text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">පාරිභෝගික තෘප්තිය</h4>
+                                    <p class="text-sm text-gray-600">Your satisfaction is our top priority</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-indigo-100 rounded-full p-3 mr-4">
+                                    <i class="fas fa-award text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">උසස් තත්ත්වය</h4>
+                                    <p class="text-sm text-gray-600">We ensure premium quality service</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-indigo-100 rounded-full p-3 mr-4">
+                                    <i class="fas fa-book text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">අඛණ්ඩ ඉගෙනීම</h4>
+                                    <p class="text-sm text-gray-600">We continuously improve our skills</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-indigo-100 rounded-full p-3 mr-4">
+                                    <i class="fas fa-hands text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">ගෞරවය</h4>
+                                    <p class="text-sm text-gray-600">We treat you with respect and care</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section with hovering cards -->
+        <section id="services" class="py-20 bg-indigo-50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">අපගේ සේවාවන්</h2>
+                    <div class="w-20 h-1 bg-indigo-600 mx-auto mb-6"></div>
+                    <p class="text-gray-700 max-w-2xl mx-auto">Kavee Salon විවිධ රූපලාවන්‍ය සේවාවන් සපයන අතර, ඒ සෑම එකක්ම ඔබගේ විශේෂිත අවශ්‍යතාවයන් සපුරාලීම සඳහා නිර්මාණය කර ඇත.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Hair Services Card -->
+                    <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden hover-card">
+                        <div class="h-48 bg-indigo-100 flex items-center justify-center">
+                            <i class="fas fa-cut text-5xl text-indigo-600"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-3">කොණ්ඩය සත්කාර</h3>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-indigo-600 mr-2"></i>
+                                    <span>නවීන කොණ්ඩා කැපීම්</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-indigo-600 mr-2"></i>
+                                    <span>විලාසිතානුකූල කොණ්ඩා හැඩගැන්වීම්</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-indigo-600 mr-2"></i>
+                                    <span>වර්ණ ගැන්වීම සහ හයිලයිට් කිරීම</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-indigo-600 mr-2"></i>
+                                    <span>හිස කෙස් වලට පෝෂණය ලබා දෙන සත්කාර</span>
+                                </li>
+                            </ul>
+                            <a href="#" class="block text-center bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition-all duration-300">Learn More</a>
+                        </div>
+                    </div>
+
+                    <!-- Facial Services Card -->
+                    <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden hover-card">
+                        <div class="h-48 bg-purple-100 flex items-center justify-center">
+                            <i class="fas fa-smile text-5xl text-purple-600"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-3">මුහුණේ සත්කාර</h3>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-purple-600 mr-2"></i>
+                                    <span>පිරිසිදු කිරීමේ සහ පෝෂණය කිරීමේ ෆේෂල්</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-purple-600 mr-2"></i>
+                                    <span>සමේ පැහැය වැඩි දියුණු කරන සත්කාර</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-purple-600 mr-2"></i>
+                                    <span>ඇස් යට කළු පැහැය සහ රැලි සඳහා විශේෂ සත්කාර</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-purple-600 mr-2"></i>
+                                    <span>විශේෂ අවස්ථා සඳහා මේක්අප්</span>
+                                </li>
+                            </ul>
+                            <a href="#" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition-all duration-300">Learn More</a>
+                        </div>
+                    </div>
+
+                    <!-- Body Services Card -->
+                    <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden hover-card">
+                        <div class="h-48 bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-spa text-5xl text-blue-600"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-3">ශරීර සත්කාර</h3>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-blue-600 mr-2"></i>
+                                    <span>සන්සුන් ශරීර සම්බාහන</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-blue-600 mr-2"></i>
+                                    <span>සම පිරිසිදු කිරීමේ සහ මෘදු කිරීමේ සත්කාර</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-blue-600 mr-2"></i>
+                                    <span>ආයුර්වේද සම්බාහන සත්කාර</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-blue-600 mr-2"></i>
+                                    <span>ශරීර මුද්‍රා ප්‍රතිකාර</span>
+                                </li>
+                            </ul>
+                            <a href="#" class="block text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-all duration-300">Learn More</a>
+                        </div>
+                    </div>
+
+                    <!-- Nail Services Card -->
+                    <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden hover-card">
+                        <div class="h-48 bg-pink-100 flex items-center justify-center">
+                            <i class="fas fa-hand-sparkles text-5xl text-pink-600"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-3">නියපොතු සත්කාර</h3>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-pink-600 mr-2"></i>
+                                    <span>මැණික්‍යූර් (අත්පාවල නියපොතු සත්කාර)</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-pink-600 mr-2"></i>
+                                    <span>පෙඩිකියූර් (පාදවල නියපොතු සත්කාර)</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-pink-600 mr-2"></i>
+                                    <span>නිය ආලේපන සහ නිර්මාණ</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-pink-600 mr-2"></i>
+                                    <span>ජෙල් සහ ඇක්රිලික් නිය සාදන ක්‍රම</span>
+                                </li>
+                            </ul>
+                            <a href="#" class="block text-center bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-lg transition-all duration-300">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Special Packages -->
+                <div class="mt-16">
+                    <h3 class="text-2xl font-bold text-center mb-8">විශේෂ පැකේජ</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Bridal Package -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-indigo-600 hover-card">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-xl font-semibold">ඔබේ විවාහ දිනයට</h4>
+                                <span class="bg-indigo-100 text-indigo-700 py-1 px-3 rounded-full text-sm">Popular</span>
+                            </div>
+                            <p class="text-gray-600 mb-4">Make your special day even more magical with our comprehensive bridal beauty package.</p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-indigo-600 mr-2"></i>
+                                    <span>සම්පූර්ණ මේක්අප් සහ කොණ්ඩා හැඩගැන්වීම</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-indigo-600 mr-2"></i>
+                                    <span>අත් සහ පාද සත්කාර</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-indigo-600 mr-2"></i>
+                                    <span>ෆේෂල් සත්කාර</span>
+                                </li>
+                            </ul>
+                            <a href="#" class="block text-center bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition-all duration-300">Book Now</a>
+                        </div>
+
+                        <!-- Spa Day Package -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-purple-600 hover-card">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-xl font-semibold">ස්පා දිනය</h4>
+                                <span class="bg-purple-100 text-purple-700 py-1 px-3 rounded-full text-sm">Best Value</span>
+                            </div>
+                            <p class="text-gray-600 mb-4">Take a day for yourself with our rejuvenating spa day package.</p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-purple-600 mr-2"></i>
+                                    <span>ශරීර සම්බාහනය</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-purple-600 mr-2"></i>
+                                    <span>ෆේෂල් සත්කාර</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-purple-600 mr-2"></i>
+                                    <span>මැණික්‍යූර් සහ පෙඩිකියූර්</span>
+                                </li>
+                            </ul>
+                            <a href="#" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition-all duration-300">Book Now</a>
+                        </div>
+
+                        <!-- Hair Transformation Package -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-600 hover-card">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-xl font-semibold">කොණ්ඩා පරිවර්තනය</h4>
+                                <span class="bg-blue-100 text-blue-700 py-1 px-3 rounded-full text-sm">New</span>
+                            </div>
+                            <p class="text-gray-600 mb-4">Complete hair transformation with cutting-edge techniques and products.</p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-blue-600 mr-2"></i>
+                                    <span>කොණ්ඩා කැපීම සහ හැඩ ගැස්වීම</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-blue-600 mr-2"></i
